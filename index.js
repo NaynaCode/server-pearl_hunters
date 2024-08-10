@@ -6,7 +6,12 @@ const UsernameModel = require('./models/Usernames')
 const app = express();
 const port = 3000;
 
-app.use(cors());
+app.use(cors({
+    origin: ["https://pearl-hunters-client.vercel.app"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+}
+));
 app.use(express.json()); // Ensure JSON body parsing is set up
 
 mongoose.connect('mongodb://127.0.0.1:27017/PearlHunting')
