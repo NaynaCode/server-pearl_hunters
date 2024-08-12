@@ -29,13 +29,20 @@ app.get("/getUsers", (req, res) => {
     })
 })
 
-app.post("/addUser", async (req, res) => {
-    const user = req.body;
-    const newUser = new UserModel(user);
-    await newUser.save();
-    console.log(user)
-    res.json(user);
-})
+app.post('/api/players', (req, res) => {
+    console.log('Received a POST request to /api/players'); // Debug log
+    const { username } = req.body;
+    
+    // Check if the username is provided
+    if (!username) {
+        console.error('No username provided'); // Debug log
+        return res.status(400).json({ error: 'Username is required' });
+    }
+    
+    console.log(`Player logged in: ${username}`); // Log player login
+    // Send a welcome message back to the client
+    res.json({ message: `Welcome, ${username}!` });
+});
 
 app.listen(port, () => {
     console.log(`Server listening on port: ${port}...`);
