@@ -7,6 +7,7 @@ const app = express();
 app.use(cors({
     origin: ["https://pearl-hunters-client.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE"],
+    optionsSuccessStatus: 200,
     credentials: true
 }));
 app.use(express.json());
