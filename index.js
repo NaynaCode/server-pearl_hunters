@@ -3,8 +3,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const UserModel = require('./models/Users');
 
-require('dotenv').config();
-
 const app = express();
 app.use(express.json());
 
@@ -19,7 +17,7 @@ app.options('*', cors(corsOptions));
 
 const port = 3000;
 
-mongoose.connect(process.env.DATABASE_URL);
+mongoose.connect("mongodb+srv://nadja:DojNDGDGsajuGrca@pearl-hunters.qeuam.mongodb.net/pearl-hunters?retryWrites=true&w=majority&appName=pearl-hunters");
 
 app.get("/api/players", async (req, res) => {
     try {
