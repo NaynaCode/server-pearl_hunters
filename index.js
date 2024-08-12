@@ -19,10 +19,7 @@ app.options('*', cors(corsOptions));
 
 const port = 3000;
 
-mongoose.connect(process.env.DATABASE_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-});
+mongoose.connect(process.env.DATABASE_URL);
 
 app.get("/api/players", async (req, res) => {
     try {
