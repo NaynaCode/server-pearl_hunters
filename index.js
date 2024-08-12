@@ -4,15 +4,16 @@ const cors = require('cors')
 const UserModel = require('./models/Users')
 
 const app = express();
+app.use(express.json());
+
 const corsOptions = {
     origin: 'https://pearl-hunters-client.vercel.app',
-    optionsSuccessStatus: 200, // For legacy browser support
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
+    methods: 'GET,POST,PUT,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type,Authorization',
 };
-  
 app.use(cors(corsOptions));
-app.use(express.json());
+app.options('*', cors(corsOptions)); 
+
 
 const port = 3000;
 
