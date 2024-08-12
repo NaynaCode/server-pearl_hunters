@@ -4,10 +4,14 @@ const cors = require('cors')
 const UserModel = require('./models/Users')
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: ["https://pearl-hunters-client.vercel.app"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+}));
 app.use(express.json());
 
-const port = 3001;
+const port = 3000;
 
 mongoose.connect("mongodb+srv://nadja:DojNDGDGsajuGrca@pearl-hunters.qeuam.mongodb.net/pearl-hunters?retryWrites=true&w=majority&appName=pearl-hunters");
 
