@@ -1,50 +1,34 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
-const UsernameModel = require('./models/Usernames')
+const UserModel = require('./models/Users')
 
 const app = express();
-const port = 3000;
+app.use(cors());
+app.use(express.json());
 
-app.use(cors({
-    origin: ["https://pearl-hunters-client.vercel.app"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
-}
-));
-app.use(express.json()); // Ensure JSON body parsing is set up
+const port = 3001;
 
-mongoose.connect('mongodb://127.0.0.1:27017/PearlHunting')
+mongoose.connect("mongodb+srv://nadja:DojNDGDGsajuGrca@pearl-hunters.qeuam.mongodb.net/pearl-hunters?retryWrites=true&w=majority&appName=pearl-hunters");
 
-app.get('/getUsernames', (req, res) => {
-    UsernameModel.find({})
-    .then(function(usernames) {
-        res.json(usernames)
-    })
-    .catch(function(err) {
+app.get("/getUsers", (req, res) => {
+    UserModel.find({})
+    .then(function(users) {
+        console.log(users);
+        res.json(users)
+    }).catch(function(err) {
         res.json(err)
     })
 })
 
-// Define a POST endpoint for player login
-app.post('/api/players', (req, res) => {
-    console.log('Received a POST request to /api/players'); // Debug log
+app.post("/addUser", async (req, res) => {
+    const user = req.body;
+    const newUser = new UserModel(user);
+    await newUser.save();
+    console.log(user)
+    res.json(user);
+})
 
-    const { username } = req.body;
-    
-    // Check if the username is provided
-    if (!username) {
-        console.error('No username provided'); // Debug log
-        return res.status(400).json({ error: 'Username is required' });
-    }
-    
-    console.log(`Player logged in: ${username}`); // Log player login
-
-    // Send a welcome message back to the client
-    res.json({ message: `Welcome, ${username}!` });
-});
-
-// Start the server
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+    console.log(`Server listening on port: ${port}...`);
+})
