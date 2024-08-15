@@ -11,6 +11,7 @@ const io = new Server(server, {
     cors: {
         origin: 'https://pearl-hunters-client.vercel.app', // Allow requests from this origin
         methods: ["GET", "POST"], // Specify which methods are allowed
+        allowedHeaders: 'Content-Type,Authorization'
     }
 });
 app.use(express.json());
