@@ -9,18 +9,11 @@ const app = express();
 const server = http.createServer(app);
 
 // Updated CORS configuration for Socket.IO
-const io = new Server(server, {
-    cors: {
-        origin: 'https://pearl-hunters-client.vercel.app',
-        methods: ["GET", "POST"],
-        credentials: true,  // Allows cookies to be sent if necessary
-        allowedHeaders: ["Content-Type", "Authorization"],
-    }
-});
+const io = new Server(server);
 
 app.use(express.json());
 app.use(cors({
-    origin: 'https://pearl-hunters-client.vercel.app', // Allow requests from this origin
+    origin: 'https://pearl-hunters-client.vercel.app/', // Allow requests from this origin
     methods: ["GET", "POST"], // Specify which methods are allowed
     allowedHeaders: 'Content-Type,Authorization',
     credentials: true // Allow cookies to be sent
