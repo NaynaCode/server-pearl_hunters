@@ -5,18 +5,26 @@ const UserModel = require('./models/Users');
 const http = require('http');
 const { Server } = require('socket.io');
 
-app.use(express.static('public'));
+const app = express();
+app.use(express.json());
 
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: process.env.CLIENT_KEY, // Allow requests from this origin
-        methods: ["GET", "POST"], // Specify which methods are allowed
+        origin: 'https://pearl-hunters-client.vercel.app', // Directly use the client URL
+        methods: ["GET", "POST"],
     }
 });
 
-app.use(express.json());
-app.use(cors());
+const corsOptions = {
+    origin: 'https://pearl-hunters-client.vercel.app',
+    methods: 'GET,POST,PUT,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type,Authorization',
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 
 const port = 3000;
 
