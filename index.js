@@ -6,30 +6,21 @@ const http = require('http');
 const { Server } = require('socket.io');
 
 const app = express();
-app.use(express.json());
-
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: 'https://pearl-hunters-client.vercel.app', // Directly use the client URL
-        methods: ["GET", "POST"],
+        origin: "http://localhost:8080", // Allow requests from this origin
+        methods: ["GET", "POST"], // Specify which methods are allowed
     }
 });
 
-const corsOptions = {
-    origin: 'https://pearl-hunters-client.vercel.app',
-    methods: 'GET,POST,PUT,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type,Authorization',
-};
-
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
-
+app.use(express.json());
+app.use(cors());
 
 const port = 3000;
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_KEY);
+mongoose.connect("mongodb+srv://nadja:DojNDGDGsajuGrca@pearl-hunters.qeuam.mongodb.net/pearl-hunters?retryWrites=true&w=majority&appName=pearl-hunters");
 
 // Handle socket connections
 io.on('connection', (socket) => {
