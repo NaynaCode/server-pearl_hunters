@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "https://pearl-hunters-client.vercel.app", // Allow requests from this origin
+        origin: process.env.CLIENT_KEY, // Allow requests from this origin
         methods: ["GET", "POST"], // Specify which methods are allowed
     }
 });
@@ -20,7 +20,7 @@ app.use(cors());
 const port = 3000;
 
 // Connect to MongoDB
-mongoose.connect("mongodb+srv://nadja:DojNDGDGsajuGrca@pearl-hunters.qeuam.mongodb.net/pearl-hunters?retryWrites=true&w=majority&appName=pearl-hunters");
+mongoose.connect(process.env.MONGODB_KEY);
 
 // Handle socket connections
 io.on('connection', (socket) => {
