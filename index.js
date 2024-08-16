@@ -42,6 +42,8 @@ mongoose.connect("mongodb+srv://nadja:DojNDGDGsajuGrca@pearl-hunters.qeuam.mongo
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
 
+    socket.broadcast.emit('newPlayer', { id: socket.id });
+
     // Handle player movement
     socket.on('playerMovement', (data) => {
         console.log('Player movement:', data);
