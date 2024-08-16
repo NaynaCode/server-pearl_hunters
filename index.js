@@ -9,20 +9,28 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "https://pearl-hunters-client.vercel.app/", // Allow requests from this origin
+        origin: "https://pearl-hunters-client.vercel.app", // Allow requests from this origin
         methods: ["GET", "POST"], // Specify which methods are allowed
     }
 });
 
 app.use(express.json());
 const corsOptions = {
-    origin: 'https://pearl-hunters-client.vercel.app', // No trailing slash
+    origin: (origin, callback) => {
+        const allowedOrigins = ['https://pearl-hunters-client.vercel.app'];
+        if (allowedOrigins.includes(origin) || !origin) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true, // Add this line if you're using cookies or need to pass credentials
+    credentials: true,
 };
 
 app.use(cors(corsOptions));
+
 app.options('*', cors(corsOptions));
 
 const port = 3000;
