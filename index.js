@@ -25,7 +25,7 @@ const corsOptions = {
         }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
 };
 
@@ -42,25 +42,13 @@ mongoose.connect("mongodb+srv://nadja:DojNDGDGsajuGrca@pearl-hunters.qeuam.mongo
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
 
-    socket.on('newPlayer', (data) => {
-        players[socket.id] = { id: socket.id, x: data.x, y: data.y };
-
-        // Send the current list of players to the newly connected player
-        socket.emit('currentPlayers', players);
-
-        // Notify all other players about the new player
-        socket.broadcast.emit('newPlayer', players[socket.id]);
-    });
+    socket.broadcast.emit('newPlayer', { id: socket.id });
 
     // Handle player movement
     socket.on('playerMovement', (data) => {
-        if (players[socket.id]) {
-            players[socket.id].x = data.x;
-            players[socket.id].y = data.y;
-
-            // Broadcast the player's movement to other clients
-            socket.broadcast.emit('playerMovement', { id: socket.id, x: data.x, y: data.y });
-        }
+        console.log('Player movement:', data);
+        // Broadcast the player's movement to other clients
+        socket.broadcast.emit('playerMovement', { id: socket.id, ...data });
     });
 
     socket.on('updateShells', async (data) => {
@@ -157,11 +145,7 @@ io.on('connection', (socket) => {
     // Handle disconnection
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
-
-        // Remove the player from the list of players
-        delete players[socket.id];
-
-        // Notify all players that this player has disconnected
+        // Optionally broadcast disconnection to other clients
         socket.broadcast.emit('playerDisconnected', { id: socket.id });
     });
 });
