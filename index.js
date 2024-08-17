@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "https://pearl-hunters-client.vercel.app", // Allow requests from this origin
+        origin: "http://localhost:8080", // Allow requests from this origin
         methods: ["GET", "POST"], // Specify which methods are allowed
     }
 });
@@ -17,7 +17,7 @@ const io = new Server(server, {
 app.use(express.json());
 const corsOptions = {
     origin: (origin, callback) => {
-        const allowedOrigins = ['https://pearl-hunters-client.vercel.app'];
+        const allowedOrigins = ['http://localhost:8080'];
         if (allowedOrigins.includes(origin) || !origin) {
             callback(null, true);
         } else {
@@ -38,9 +38,55 @@ const port = 3000;
 // Connect to MongoDB
 mongoose.connect("mongodb+srv://nadja:DojNDGDGsajuGrca@pearl-hunters.qeuam.mongodb.net/pearl-hunters?retryWrites=true&w=majority&appName=pearl-hunters");
 
+let countdownTime = 20; // Total time in seconds
+let winner;
+// Broadcast the timer to all clients every second
+let intervalId;
+
+function startCountdown() {
+    intervalId = setInterval(async () => {
+        if (countdownTime > 0) {
+            countdownTime--;
+            io.emit('timerUpdate', countdownTime);
+        } else {
+            // Clear the interval to stop the countdown temporarily
+            clearInterval(intervalId);
+
+            // Reset all values for shells, pearls, necklaces, and coins in the database
+            try {
+                winner = await UserModel.findOne().sort({ coins: -1}).exec();
+                await UserModel.updateMany({}, { shells: 0, pearls: 0, necklaces: 0, coins: 0 });
+                console.log('All player values reset to zero.');
+            } catch (err) {
+                console.error('Error resetting player values:', err);
+            }
+
+            // Notify all clients to change the scene
+            io.emit('resetAndChangeScene', winner);
+
+            // Wait for 5 seconds before restarting the countdown
+            setTimeout(() => {
+                // Reset the countdown time
+                countdownTime = 20;
+
+                // Emit the new countdown time
+                io.emit('timerUpdate', countdownTime);
+
+                // Restart the countdown
+                startCountdown();
+            }, 5000);
+        }
+    }, 1000);
+}
+
+// Start the countdown initially
+startCountdown();
+
 // Handle socket connections
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
+
+    socket.emit('timerUpdate', countdownTime);
 
     socket.broadcast.emit('newPlayer', { id: socket.id });
 
