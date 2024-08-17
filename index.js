@@ -67,7 +67,7 @@ function startCountdown() {
             // Wait for 5 seconds before restarting the countdown
             setTimeout(() => {
                 // Reset the countdown time
-                countdownTime = 20;
+                countdownTime = 60;
 
                 // Emit the new countdown time
                 io.emit('timerUpdate', countdownTime);
