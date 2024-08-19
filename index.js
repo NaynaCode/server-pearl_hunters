@@ -36,7 +36,7 @@ app.options('*', cors(corsOptions));
 const port = 3000;
 
 // Connect to MongoDB
-mongoose.connect(MONGO_KEY);
+mongoose.connect(process.env.MONGO_KEY);
 
 let countdownTime = 60; // Total time in seconds
 let winner;
