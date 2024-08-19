@@ -17,7 +17,7 @@ const io = new Server(server, {
 app.use(express.json());
 const corsOptions = {
     origin: (origin, callback) => {
-        const allowedOrigins = [Cprocess.env.LIENT_KEY];
+        const allowedOrigins = [process.env.CLIENT_KEY];
         if (allowedOrigins.includes(origin) || !origin) {
             callback(null, true);
         } else {
