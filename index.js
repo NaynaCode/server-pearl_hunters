@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: CLIENT_KEY, // Allow requests from this origin
+        origin: process.env.CLIENT_KEY, // Allow requests from this origin
         methods: ["GET", "POST"], // Specify which methods are allowed
     }
 });
@@ -17,7 +17,7 @@ const io = new Server(server, {
 app.use(express.json());
 const corsOptions = {
     origin: (origin, callback) => {
-        const allowedOrigins = [CLIENT_KEY];
+        const allowedOrigins = [Cprocess.env.LIENT_KEY];
         if (allowedOrigins.includes(origin) || !origin) {
             callback(null, true);
         } else {
