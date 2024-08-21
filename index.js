@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: process.env.CLIENT_KEY, // Allow requests from this origin
+        origin: process.env.CLIENT_KEY || 'http://localhost:8081', // Allow requests from this origin
         methods: ["GET", "POST"], // Specify which methods are allowed
     }
 });
@@ -17,7 +17,7 @@ const io = new Server(server, {
 app.use(express.json());
 const corsOptions = {
     origin: (origin, callback) => {
-        const allowedOrigins = [process.env.CLIENT_KEY];
+        const allowedOrigins = [process.env.CLIENT_KEY || 'http://localhost:8081'];
         if (allowedOrigins.includes(origin) || !origin) {
             callback(null, true);
         } else {
@@ -36,7 +36,7 @@ app.options('*', cors(corsOptions));
 const port = 3000;
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_KEY);
+mongoose.connect(process.env.MONGO_KEY || "mongodb+srv://nadja:DojNDGDGsajuGrca@pearl-hunters.qeuam.mongodb.net/pearl-hunters?retryWrites=true&w=majority&appName=pearl-hunters");
 
 let countdownTime = 60; // Total time in seconds
 let winner;
@@ -54,13 +54,22 @@ function startCountdown() {
 
             // Reset all values for shells, pearls, necklaces, and coins in the database
             try {
-                winner = await UserModel.findOne().sort({ coins: -1}).exec();
-                await UserModel.updateMany({}, { shells: 0, pearls: 0, necklaces: 0, coins: 0 });
-                console.log('All player values reset to zero.');
+                // Step 1: Find the winner (player with the most coins)
+                winner = await UserModel.findOne().sort({ coins: -1 }).exec();
+                console.log(winner);
+            
+                if (winner) {
+                    // Step 2: Reset all player values to zero after the winner is found
+                    await UserModel.updateMany({}, { shells: 0, pearls: 0, necklaces: 0, coins: 0 });
+                    console.log('All player values reset to zero.');
+                } else {
+                    console.log('No winner found.');
+                }
             } catch (err) {
-                console.error('Error resetting player values:', err);
+                console.error('Error during the process:', err);
             }
-
+            
+            console.log(winner);
             // Notify all clients to change the scene
             io.emit('resetAndChangeScene', winner);
 
