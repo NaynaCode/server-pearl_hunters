@@ -9,15 +9,15 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: process.env.CLIENT_KEY || 'http://localhost:8081', // Allow requests from this origin
-        methods: ["GET", "POST"], // Specify which methods are allowed
+        origin: process.env.CLIENT_KEY || 'http://localhost:8080', 
+        methods: ["GET", "POST"], 
     }
 });
 
 app.use(express.json());
 const corsOptions = {
     origin: (origin, callback) => {
-        const allowedOrigins = [process.env.CLIENT_KEY || 'http://localhost:8081'];
+        const allowedOrigins = [process.env.CLIENT_KEY || 'http://localhost:8080'];
         if (allowedOrigins.includes(origin) || !origin) {
             callback(null, true);
         } else {
@@ -35,12 +35,10 @@ app.options('*', cors(corsOptions));
 
 const port = 3000;
 
-// Connect to MongoDB
 mongoose.connect(process.env.MONGO_KEY || "mongodb+srv://nadja:DojNDGDGsajuGrca@pearl-hunters.qeuam.mongodb.net/pearl-hunters?retryWrites=true&w=majority&appName=pearl-hunters");
 
-let countdownTime = 60; // Total time in seconds
+let countdownTime = 60; 
 let winner;
-// Broadcast the timer to all clients every second
 let intervalId;
 
 function startCountdown() {
@@ -49,17 +47,13 @@ function startCountdown() {
             countdownTime--;
             io.emit('timerUpdate', countdownTime);
         } else {
-            // Clear the interval to stop the countdown temporarily
             clearInterval(intervalId);
 
-            // Reset all values for shells, pearls, necklaces, and coins in the database
             try {
-                // Step 1: Find the winner (player with the most coins)
                 winner = await UserModel.findOne().sort({ coins: -1 }).exec();
                 console.log(winner);
             
                 if (winner) {
-                    // Step 2: Reset all player values to zero after the winner is found
                     await UserModel.updateMany({}, { shells: 0, pearls: 0, necklaces: 0, coins: 0 });
                     console.log('All player values reset to zero.');
                 } else {
@@ -70,28 +64,21 @@ function startCountdown() {
             }
             
             console.log(winner);
-            // Notify all clients to change the scene
             io.emit('resetAndChangeScene', winner);
 
-            // Wait for 5 seconds before restarting the countdown
             setTimeout(() => {
-                // Reset the countdown time
                 countdownTime = 60;
 
-                // Emit the new countdown time
                 io.emit('timerUpdate', countdownTime);
 
-                // Restart the countdown
                 startCountdown();
             }, 5000);
         }
     }, 1000);
 }
 
-// Start the countdown initially
 startCountdown();
 
-// Handle socket connections
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
 
@@ -99,10 +86,8 @@ io.on('connection', (socket) => {
 
     socket.broadcast.emit('newPlayer', { id: socket.id });
 
-    // Handle player movement
     socket.on('playerMovement', (data) => {
         console.log('Player movement:', data);
-        // Broadcast the player's movement to other clients
         socket.broadcast.emit('playerMovement', { id: socket.id, ...data });
     });
 
@@ -173,10 +158,8 @@ io.on('connection', (socket) => {
             const { username, necklaces, coins } = data;
             await UserModel.findOneAndUpdate({ username }, { necklaces, coins });
 
-            // Fetch the updated leaderboard
             const users = await UserModel.find().sort({ coins: -1 });
 
-            // Emit the updated leaderboard to all connected clients
             io.emit('leaderboardData', { users });
         } catch (err) {
             console.error('Error updating coins:', err);
@@ -197,15 +180,12 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Handle disconnection
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
-        // Optionally broadcast disconnection to other clients
         socket.broadcast.emit('playerDisconnected', { id: socket.id });
     });
 });
 
-// GET all users (for testing purposes)
 app.get("/api/players", async (req, res) => {
     try {
         const users = await UserModel.find({});
@@ -215,26 +195,22 @@ app.get("/api/players", async (req, res) => {
     }
 });
 
-// POST to add a new user
 app.post("/users/register", async (req, res) => {
     try {
         const { username } = req.body;
 
-        // Check if the username already exists
         const existingUser = await UserModel.findOne({ username });
 
         if (existingUser) {
-            // If the username exists, return a 400 error
+            
             return res.status(400).json({ error: 'Username already taken' });
         }
 
-        // If the username does not exist, create a new user
         const newUser = new UserModel({ username });
         await newUser.save();
         res.json({ message: `Welcome, ${username}!` });
 
     } catch (err) {
-        // Handle server errors
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
@@ -243,7 +219,6 @@ app.post("/users/login", async (req, res) => {
     try {
         const { username } = req.body;
 
-        // Check if the username already exists
         const existingUser = await UserModel.findOne({ username });
 
         if (!existingUser) {
@@ -256,7 +231,6 @@ app.post("/users/login", async (req, res) => {
             res.json({ message: `Welcome, ${username}!` });
         }
     } catch (err) {
-        // Handle server errors
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
@@ -276,9 +250,6 @@ app.post("/userData", async (req, res) => {
     }
 });
 
-
-
-// Start the server
 server.listen(port, () => {
     console.log(`Server listening on port: ${port}...`);
 });
